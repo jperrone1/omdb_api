@@ -1,16 +1,19 @@
 class MoviesController < ApplicationController
   before_action :set_movie, only: [:show, :edit, :update, :destroy]
+  respond_to :json
 
   def index
     @movies = Movie.all
-    respond_to do |format|
-      format.html
-      format.xml { render xml: @movies }
-      format.json { render json: @movies }
-    end
+    respond_with(@movies)
+    # respond_to do |format|
+    #   format.html
+    #   format.xml { render xml: @movies.to_xml }
+    #   format.json { render json: @movies }
+    # end
   end
 
   def show
+    @movie = Movie.find(params[:id])
   end
 
   def new
@@ -26,21 +29,43 @@ class MoviesController < ApplicationController
     respond_to do |format|
       if @movie.save
         format.html { redirect_to @movie, notice: 'Movie was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @movie }
+        format.json { render json: @movie, status: :created, location: @movie }
       else
-        format.html { render action: 'new' }
+        format.html { render 'new' }
         format.json { render json: @movie.errors, status: :unprocessable_entity }
       end
     end
   end
 
+  # def update
+  #   if @movie.update(movie_params)
+      
+  #     format.json { render json: @movie, status: :updated, location: @movie }
+  #     redirect_to @movie
+  #   else
+  #     render :edit
+  #   end
+  # end
+
   def update
-    if @movie.update(movie_params)
-      redirect_to @movie
-    else
-      render :edit
+    respond_to do |format|
+      if @movie.update(movie_params)
+        format.html { redirect_to @movie, notice: 'Movie was successfully updated.' }
+        format.json { head :no_content }
+      else
+        format.html { render action: 'edit' }
+        format.json { render json: @movie.errors, status: :unprocessable_entity }
+      end
     end
   end
+
+  # def update
+  #   if @movie.update(movie_params)
+  #     redirect_to @movie
+  #   else
+  #     render :edit
+  #   end
+  # end
 
   def destroy
     @movie.destroy
